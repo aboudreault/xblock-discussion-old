@@ -7,7 +7,8 @@
     }
     return $.fn.extend({
       loading: function(takeFocus) {
-        this.$_loading = $("<div class='loading-animation' tabindex='0'><span class='sr'>" + gettext("Loading content") + "</span></div>");
+       // TODO removed the "Loading Content" text span...
+        this.$_loading = $("<div class='loading-animation' tabindex='0'></div>");
         $(this).after(this.$_loading);
         if (takeFocus) {
           DiscussionUtil.makeFocusTrap(this.$_loading);
@@ -25,6 +26,12 @@
     function DiscussionUtil() {}
 
     DiscussionUtil.wmdEditors = {};
+
+    // TODO: port this new function in coffeescript.
+    DiscussionUtil.baseUrl = '';
+    DiscussionUtil.setBaseUrl = function(baseUrl) {
+      this.baseUrl = baseUrl;
+    };
 
     DiscussionUtil.getTemplate = function(id) {
       return $("script#" + id).html();
@@ -72,6 +79,7 @@
     };
 
     DiscussionUtil.urlFor = function(name, param, param1, param2) {
+      // TODO port to coffescript: modified for baseUrl
       var urls = {
         follow_discussion: "/courses/" + $$course_id + "/discussion/" + param + "/follow",
         unfollow_discussion: "/courses/" + $$course_id + "/discussion/" + param + "/unfollow",
@@ -111,8 +119,7 @@
         "disable_notifications": "/notification_prefs/disable/",
         "notifications_status": "/notification_prefs/status/"
       };
-      // TODO HACK for testing...
-      return 'http://lms.devstack.local'+urls[name];
+      return this.baseUrl+urls[name];
     };
 
     DiscussionUtil.activateOnSpace = function(event, func) {
@@ -160,7 +167,9 @@
       params["url"] = URI(params["url"]).addSearch({
         ajax: 1
       });
-      params["beforeSend"] = function() {
+      // TODO Apply this change to coffescript file: I removed the beforeSend use. in conflict with
+      // jquery.xblock.
+      var beforeSend = function() {
         if ($elem) {
           $elem.attr("disabled", "disabled");
         }
@@ -177,6 +186,7 @@
           return _this.discussionAlert(gettext("Sorry"), gettext("We had some trouble processing your request. Please ensure you have copied any unsaved work and then reload the page."));
         };
       }
+      beforeSend();
       request = $.ajax(params).always(function() {
         if ($elem) {
           $elem.removeAttr("disabled");
